@@ -29,6 +29,7 @@ namespace KerbalKonstructs
 		private Boolean showSelector = false;
 		private MapIconManager mapIconManager = new MapIconManager();
 		private ApplicationLauncherButton siteSelector;
+		private string tmp_deliverytype;
 
 		//Configurable variables
 		[KSPField]
@@ -139,7 +140,7 @@ namespace KerbalKonstructs
 		}
 
 		public void loadObjects()
-		{
+		{ 
 			UrlDir.UrlConfig[] configs = GameDatabase.Instance.GetConfigs("STATIC");
 			foreach(UrlDir.UrlConfig conf in configs)
 			{
@@ -243,6 +244,11 @@ namespace KerbalKonstructs
 							break;
 					}
 					obj.siteAuthor = ins.GetValue("LaunchSiteAuthor") ?? "";
+					obj.siteID = ins.GetValue ("siteID") ?? "";
+					tmp_deliverytype = ins.GetValue ("deliveryType") ?? "0"; 
+					obj.deliveryType = ushort.Parse (tmp_deliverytype);
+					// warning, use tryparse here !!
+					Debug.Log ("KKJK: sid=" + obj.siteID + "  dt= " + obj.deliveryType.ToString());
 
 					staticDB.addStatic(obj);
 					spawnObject(obj, false);
@@ -274,17 +280,22 @@ namespace KerbalKonstructs
 					inst.AddValue("RotationAngle", obj.rotation.ToString());
 					inst.AddValue("VisibilityRange", obj.visibleRange.ToString());
 					inst.AddValue("Group", obj.groupName);
-					if (obj.siteName != "")
-					{
-						inst.AddValue("LaunchSiteName", obj.siteName);
-						inst.AddValue("LaunchPadTransform", obj.siteTransform);
-						inst.AddValue("LaunchSiteDescription", obj.siteDescription);
-						inst.AddValue("LaunchSiteLogo", obj.siteLogo.Replace(obj.model.path + "/", ""));//Strip path from image
+					if (obj.siteName != "") {
+						inst.AddValue ("LaunchSiteName", obj.siteName);
+						inst.AddValue ("LaunchPadTransform", obj.siteTransform);
+						inst.AddValue ("LaunchSiteDescription", obj.siteDescription);
+						inst.AddValue ("LaunchSiteLogo", obj.siteLogo.Replace (obj.model.path + "/", ""));//Strip path from image
 						if (obj.siteIcon != "")
-							inst.AddValue("LaunchSiteIcon", obj.siteIcon.Replace(obj.model.path + "/", ""));
-						inst.AddValue("LaunchSiteType", obj.siteType.ToString().ToUpper());
-						if(obj.siteAuthor != "")
-							inst.AddValue("LaunchSiteAuthor", obj.siteAuthor);
+							inst.AddValue ("LaunchSiteIcon", obj.siteIcon.Replace (obj.model.path + "/", ""));
+						inst.AddValue ("LaunchSiteType", obj.siteType.ToString ().ToUpper ());
+						if (obj.siteAuthor != "")
+							inst.AddValue ("LaunchSiteAuthor", obj.siteAuthor);
+						if (obj.siteID != "") {
+							inst.AddValue ("siteID", obj.siteID);
+						}
+						if (obj.deliveryType != 0) {
+							inst.AddValue ("deliveryType", obj.deliveryType.ToString ());
+						}
 					}
 					modelConfig.nodes.Add(inst);
 				}

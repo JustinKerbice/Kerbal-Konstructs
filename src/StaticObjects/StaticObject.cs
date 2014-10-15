@@ -23,6 +23,8 @@ namespace KerbalKonstructs.StaticObjects
 		public string siteLogo;
 		public string siteIcon;
 		public string siteAuthor;
+		public string siteID;
+		public ushort deliveryType;
 		public LaunchSites.SiteType siteType;
 
 		public Boolean editing;
