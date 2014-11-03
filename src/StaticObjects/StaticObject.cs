@@ -25,6 +25,7 @@ namespace KerbalKonstructs.StaticObjects
 		public string siteAuthor;
 		public string siteID;
 		public ushort deliveryType;
+		public uint safeDistance;
 		public LaunchSites.SiteType siteType;
 
 		public Boolean editing;

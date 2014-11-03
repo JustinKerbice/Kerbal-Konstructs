@@ -29,7 +29,7 @@ namespace KerbalKonstructs
 		private Boolean showSelector = false;
 		private MapIconManager mapIconManager = new MapIconManager();
 		private ApplicationLauncherButton siteSelector;
-		private string tmp_deliverytype;
+		private string tmp_parsing;
 
 		//Configurable variables
 		[KSPField]
@@ -245,10 +245,12 @@ namespace KerbalKonstructs
 					}
 					obj.siteAuthor = ins.GetValue("LaunchSiteAuthor") ?? "";
 					obj.siteID = ins.GetValue ("siteID") ?? "";
-					tmp_deliverytype = ins.GetValue ("deliveryType") ?? "0"; 
-					obj.deliveryType = ushort.Parse (tmp_deliverytype);
+					tmp_parsing = ins.GetValue ("deliveryType") ?? "0"; 
+					obj.deliveryType = ushort.Parse (tmp_parsing);
 					// warning, use tryparse here !!
-					Debug.Log ("KKJK: sid=" + obj.siteID + "  dt= " + obj.deliveryType.ToString());
+					tmp_parsing = ins.GetValue ("safeDistance") ?? "0";
+					obj.safeDistance = uint.Parse (tmp_parsing);
+					Debug.Log ("KKJK: sid=" + obj.siteID + "  dt= " + obj.deliveryType.ToString() + "sd=" + obj.safeDistance.ToString());
 
 					staticDB.addStatic(obj);
 					spawnObject(obj, false);
@@ -295,6 +297,9 @@ namespace KerbalKonstructs
 						}
 						if (obj.deliveryType != 0) {
 							inst.AddValue ("deliveryType", obj.deliveryType.ToString ());
+						}
+						if (obj.safeDistance != 0) {
+							inst.AddValue ("safeDistance", obj.safeDistance.ToString ());
 						}
 					}
 					modelConfig.nodes.Add(inst);
