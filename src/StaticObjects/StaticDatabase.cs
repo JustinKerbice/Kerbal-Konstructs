@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Linq;
 using UnityEngine;
 
@@ -15,8 +14,8 @@ namespace KerbalKonstructs.StaticObjects
 
 		public void addStatic(StaticObject obj)
 		{
-			String bodyName = obj.parentBody.bodyName;
-			String groupName = obj.groupName;
+			String bodyName = ((CelestialBody) obj.getSetting("CelestialBody")).bodyName;
+			String groupName = (string) obj.getSetting("Group");
 
 			//Debug.Log("Creating object in group " + obj.groupName);
 
@@ -27,7 +26,7 @@ namespace KerbalKonstructs.StaticObjects
 			{
 				StaticGroup group = new StaticGroup(bodyName, groupName);
 				//Ungrouped objects get individually cached. New acts the same as Ungrouped but stores unsaved statics instead.
-				if (obj.groupName == "Ungrouped")
+				if (groupName == "Ungrouped")
 				{
 					group.alwaysActive = true;
 					group.active = true;
@@ -35,18 +34,38 @@ namespace KerbalKonstructs.StaticObjects
 				groupList[bodyName].Add(groupName, group);
 			}
 
-			groupList[obj.parentBody.bodyName][obj.groupName].addStatic(obj);
+			groupList[bodyName][groupName].addStatic(obj);
 		}
 
 		public void cacheAll()
 		{
+			// ASH 01112014 Need to handle this.
+			Debug.Log("KK: cacheAll() activeBodyname is " + activeBodyName);
+			if (activeBodyName == "")
+				return;
+
+			var body = KerbalKonstructs.instance.getCurrentBody();
+			Debug.Log("KK: getCurrentBody()" + (body == null ? " = NULL" : (".bodyName = " + body.bodyName)));
+
 			if (groupList.ContainsKey(activeBodyName))
 			{
-				foreach (StaticGroup group in groupList[KerbalKonstructs.instance.getCurrentBody().bodyName].Values)
+				// ASH 01112014 This is wrong.
+				//foreach (StaticGroup group in groupList[KerbalKonstructs.instance.getCurrentBody().bodyName].Values)
+
+				// ASH 01112014 This is right.
+				foreach (StaticGroup group in groupList[activeBodyName].Values)
 				{
 					group.cacheAll();
+					Debug.Log("KK: cacheAll for " + activeBodyName + " " + group.getGroupName());
 					if (!group.alwaysActive)
+					{
 						group.active = false;
+						Debug.Log("KK: group alwaysActive is FALSE. Group is deactivated.");
+					}
+					else
+					{
+						Debug.Log("KK: group alwaysActive is TRUE. Group stays active.");
+					}
 				}
 			}
 		}
@@ -111,20 +130,23 @@ namespace KerbalKonstructs.StaticObjects
 
 		public void deleteObject(StaticObject obj)
 		{
-			if (groupList.ContainsKey(obj.parentBody.bodyName))
+			String bodyName = ((CelestialBody)obj.getSetting("CelestialBody")).bodyName;
+			String groupName = (string)obj.getSetting("Group");
+
+			if (groupList.ContainsKey(bodyName))
 			{
-				if (groupList[obj.parentBody.bodyName].ContainsKey(obj.groupName))
+				if (groupList[bodyName].ContainsKey(groupName))
 				{
-					groupList[obj.parentBody.bodyName][obj.groupName].deleteObject(obj);
+					groupList[bodyName][groupName].deleteObject(obj);
 				}
 				else
 				{
-					Debug.Log("Group not found! " + obj.groupName);
+					Debug.Log("Group not found! " + groupName);
 				}
 			}
 			else
 			{
-				Debug.Log("Body not found! " + obj.parentBody.bodyName);
+				Debug.Log("Body not found! " + bodyName);
 			}
 		}
 
